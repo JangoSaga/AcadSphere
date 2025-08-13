@@ -1,9 +1,3 @@
-import SignOutButton from "@/app/_components/auth/SignOutButton";
-
 export default function Page() {
-  return (
-    <div>
-      <SignOutButton />
-    </div>
-  );
+  return <div>dashboard</div>;
 }

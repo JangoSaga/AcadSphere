@@ -1,6 +1,6 @@
 "use client";
 import { signInAction } from "@/app/_lib/actions";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 type FormValues = {
   email: string;
@@ -13,33 +13,24 @@ export default function LoginForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<FormValues>();
+  const router = useRouter();
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    const { success, error, role } = await signInAction(data);
+    const { success, user } = await signInAction(data);
     if (success) {
-      console.log(success, "succesfull", role);
-      redirect("/dashboard");
+      const role = user?.role.toLowerCase(); // Ensure lowercase match with routes
+      router.push(`/dashboard/${role}`);
     } else {
-      console.log(error);
+      // Handle error display here
+      console.log("Login failed", user);
     }
   };
   return (
     <div>
       {/* LOGIN FORM */}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          {/* ROLE */}
-          <select id="role" {...register("role", { required: true })}>
-            <option>Select your role</option>
-            <option value="faculty">Faculty</option>
-            <option value="student">Student</option>
-          </select>
-          {errors.role && (
-            <p className="text-sm text-red-500">Role is required</p>
-          )}
-        </div>
+        <h1 className="text-2xl">Login page</h1>
         <div>
           {/* EMAIL */}
-          <h1 className="text-2xl">Login page</h1>
           <div className="flex gap-2">
             <label htmlFor="email">Email</label>
             <input

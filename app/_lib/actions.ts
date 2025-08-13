@@ -1,27 +1,23 @@
 "use server";
 import { signIn, signOut } from "./auth";
+import { verifyUserCredentials } from "./verifyUserCredentials";
 
-export async function signInAction(
-  params: Pick<AuthCredentials, "email" | "password" | "role">
-) {
-  const { email, password, role } = params;
+export async function signInAction(params: {
+  email: string;
+  password: string;
+}) {
+  const { email, password } = params;
   try {
-    const result = await signIn("credentials", {
+    const user = await verifyUserCredentials(email, password);
+    if ("error" in user) {
+      return { success: false, error: user.error };
+    }
+    await signIn("credentials", {
       email,
       password,
-      role,
       redirect: false,
     });
-    console.log(result);
-    if (result?.error) {
-      return { success: false, error: result.error };
-    }
-    return {
-      success: true,
-      id: result?.id,
-      email: result?.email,
-      role: result?.role,
-    };
+    return { success: true, user };
   } catch (error) {
     return { success: false, error };
   }
